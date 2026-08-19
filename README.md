@@ -195,6 +195,11 @@ Se distinguen dos situaciones que suelen confundirse:
 No se reintenta a propósito: reintentar pisaría el cambio ajeno, que es justo lo
 que la concurrencia optimista viene a evitar.
 
+Del lado de la app el ciclo se cierra: ante un conflicto el formulario ofrece
+**Recargar precio**, que trae la versión actual con `GET /products/{id}`,
+actualiza el campo y el ETag, y deja reintentar con datos buenos. Un mensaje que
+dice "recargá" sin dar con qué es un callejón sin salida.
+
 `Version` es un `int` que incrementa el dominio, no el `byte[] RowVersion`
 habitual, porque SQLite no tiene un tipo rowversion que la base actualice sola.
 Un entero funciona en cualquier motor, es determinista —y por lo tanto
