@@ -52,6 +52,7 @@ frontend/android/local.properties
 frontend/android/key.properties
 frontend/macos/Pods/
 frontend/macos/Flutter/ephemeral/
+frontend/env/local.json
 
 # ---------- Editores ----------
 .idea/

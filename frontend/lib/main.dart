@@ -1,7 +1,31 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:sol_catalog/core/di/injection.dart';
+import 'package:sol_catalog/core/router/app_router.dart';
+import 'package:sol_catalog/core/theme/app_theme.dart';
 
 void main() {
-  runApp(const SolCatalogApp());
+  unawaited(
+    runZonedGuarded(
+      () async {
+        WidgetsFlutterBinding.ensureInitialized();
+
+        usePathUrlStrategy();
+
+        FlutterError.onError = (details) {
+          FlutterError.presentError(details);
+          debugPrint('[FlutterError] ${details.exceptionAsString()}');
+        };
+
+        await configureDependencies();
+
+        runApp(const SolCatalogApp());
+      },
+      (error, stack) => debugPrint('[Zone] $error\n$stack'),
+    ),
+  );
 }
 
 class SolCatalogApp extends StatelessWidget {
@@ -9,11 +33,12 @@ class SolCatalogApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp.router(
       title: 'Catálogo de productos',
-      home: Scaffold(
-        body: Center(child: Text('Sol Catalog')),
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      routerConfig: di<AppRouter>().config,
     );
   }
 }
