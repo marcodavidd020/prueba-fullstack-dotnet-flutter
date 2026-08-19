@@ -75,7 +75,13 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
     ProductQuery query,
     Emitter<ProductListState> emit,
   ) async {
-    emit(const ProductListLoading());
+    final current = state;
+
+    if (current is ProductListLoaded) {
+      emit(current.copyWith(isRefreshing: true, clearFailure: true));
+    } else {
+      emit(const ProductListLoading());
+    }
 
     try {
       final result = await _searchProducts(query);

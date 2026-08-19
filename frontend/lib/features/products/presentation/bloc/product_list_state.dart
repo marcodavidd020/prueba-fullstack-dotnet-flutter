@@ -19,12 +19,14 @@ final class ProductListLoaded extends ProductListState {
   const ProductListLoaded({
     required this.page,
     required this.query,
+    this.isRefreshing = false,
     this.isLoadingMore = false,
     this.loadMoreFailure,
   });
 
   final ProductPage page;
   final ProductQuery query;
+  final bool isRefreshing;
   final bool isLoadingMore;
   final Failure? loadMoreFailure;
 
@@ -37,12 +39,14 @@ final class ProductListLoaded extends ProductListState {
   ProductListLoaded copyWith({
     ProductPage? page,
     ProductQuery? query,
+    bool? isRefreshing,
     bool? isLoadingMore,
     Failure? loadMoreFailure,
     bool clearFailure = false,
   }) => ProductListLoaded(
     page: page ?? this.page,
     query: query ?? this.query,
+    isRefreshing: isRefreshing ?? this.isRefreshing,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     loadMoreFailure: clearFailure
         ? null
@@ -50,7 +54,13 @@ final class ProductListLoaded extends ProductListState {
   );
 
   @override
-  List<Object?> get props => [page, query, isLoadingMore, loadMoreFailure];
+  List<Object?> get props => [
+    page,
+    query,
+    isRefreshing,
+    isLoadingMore,
+    loadMoreFailure,
+  ];
 }
 
 final class ProductListError extends ProductListState {

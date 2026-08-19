@@ -62,9 +62,14 @@ class _ProductListViewState extends State<ProductListView> {
   Future<void> _refresh() async {
     context.read<ProductListBloc>().add(const ProductsRequested());
     await context.read<ProductListBloc>().stream.firstWhere(
-      (state) => state is! ProductListLoading,
+      (state) =>
+          state is! ProductListLoading &&
+          !(state is ProductListLoaded && state.isRefreshing),
     );
   }
+
+  static bool _refreshing(ProductListState state) =>
+      state is ProductListLoaded && state.isRefreshing;
 
   @override
   Widget build(BuildContext context) {
@@ -87,9 +92,24 @@ class _ProductListViewState extends State<ProductListView> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
-          child: ProductSearchField(
-            onChanged: (text) => bloc.add(SearchChanged(text)),
+          preferredSize: const Size.fromHeight(68),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ProductSearchField(
+                onChanged: (text) => bloc.add(SearchChanged(text)),
+              ),
+              SizedBox(
+                height: 4,
+                child: BlocBuilder<ProductListBloc, ProductListState>(
+                  buildWhen: (previous, current) =>
+                      _refreshing(previous) != _refreshing(current),
+                  builder: (context, state) => _refreshing(state)
+                      ? const LinearProgressIndicator(minHeight: 4)
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ],
           ),
         ),
       ),
