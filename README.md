@@ -3,7 +3,7 @@
 Prueba técnica: catálogo de productos con búsqueda, filtros, orden, paginación y
 actualización de precio con control de concurrencia optimista.
 
-**Estado:** backend completo y funcionando. Tests y frontend Flutter pendientes.
+**Estado:** backend y app Flutter completos y funcionando. Tests pendientes.
 
 ---
 
@@ -12,6 +12,7 @@ actualización de precio con control de concurrencia optimista.
 ### Requisitos
 
 - [.NET SDK 10.0.400](https://dotnet.microsoft.com/download) o superior
+- [Flutter 3.47](https://docs.flutter.dev/get-started/install) o superior
 - `dotnet-ef` solo si vas a crear migraciones nuevas:
   `dotnet tool install --global dotnet-ef`
 
@@ -39,7 +40,46 @@ El seed es idempotente: si ya hay productos no hace nada, así que podés
 reiniciar sin duplicar el catálogo ni perder los precios que hayas editado
 probando. Para empezar de cero, borrá `backend/src/Sol.Catalog.Api/catalog.db`.
 
-### Configuración opcional
+### Frontend
+
+Con el backend corriendo, en otra terminal:
+
+```bash
+cd frontend
+cp .env.example .env
+flutter pub get
+flutter run -d chrome --dart-define-from-file=.env
+```
+
+**Cada plataforma ve el `localhost` del backend de forma distinta.** Es la causa
+número uno de "la app no conecta", así que la URL se configura en vez de estar
+fija en el código:
+
+| Plataforma | `API_BASE_URL` |
+|---|---|
+| Web (Chrome) y simulador iOS | `http://localhost:5151` |
+| Emulador Android | `http://10.0.2.2:5151` |
+| Dispositivo físico | `http://192.168.x.x:5151` |
+
+El emulador de Android corre en su propia máquina virtual: su `localhost` es el
+del emulador, no el de tu máquina. `10.0.2.2` es el alias que Android reserva
+para el host.
+
+El `.env` está en el `.gitignore`; `.env.example` es la plantilla. Si no existe
+ninguno, la app usa `http://localhost:5151`, que sirve para web y para el
+simulador de iOS.
+
+**No se usa `flutter_dotenv`.** El archivo lo consume `--dart-define-from-file`,
+que acepta formato `.env` además de JSON, y el compilador incrusta los valores
+como constantes: no hay asset extra que empaquetar y un valor faltante se
+detecta al compilar, no en la primera pantalla.
+
+Conviene decirlo antes de que lo pregunten: **una clave embebida en una app
+cliente no es un secreto**, ni con `.env` ni con `--dart-define`. Está en el
+bundle de la web y en el APK. Sirve para identificar a la aplicación y aplicarle
+límites de uso, no para autenticar a una persona.
+
+### Configuración opcional del backend
 
 | Clave | Para qué | Por defecto |
 |---|---|---|
@@ -249,11 +289,24 @@ backend/
     ├── Sol.Catalog.Application/    casos de uso, puertos, validadores, decoradores
     ├── Sol.Catalog.Infrastructure/ EF Core, SQLite, migraciones, seed
     └── Sol.Catalog.Api/            endpoints, ProblemDetails, pipeline HTTP
+
+frontend/
+├── .env.example                    plantilla de configuración
+└── lib/
+    ├── core/                       config, Failure, cliente HTTP, tema, widgets
+    └── features/products/
+        ├── domain/                 entidades, puerto del repositorio, casos de uso
+        ├── data/                   modelos, data source, implementación
+        └── presentation/           Bloc de la lista, Cubit del formulario, UI
 ```
+
+Las dos mitades usan la misma forma: el dominio en el centro sin dependencias
+hacia afuera, y la interfaz del repositorio declarada por la capa que la
+consume, no por la que la implementa.
 
 ---
 
 ## Pendiente
 
-- Tests de dominio, de casos de uso y de integración
-- Frontend Flutter
+- Tests de dominio, de casos de uso y de integración en el backend
+- Tests de Bloc y de widgets en el frontend
