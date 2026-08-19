@@ -31,6 +31,28 @@ appsettings.Development.local.json
 appsettings.*.local.json
 *.pfx
 
+# ---------- Flutter / Dart ----------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+frontend/.dart_tool/
+frontend/build/
+frontend/ios/Pods/
+frontend/ios/.symlinks/
+frontend/ios/Flutter/Flutter.framework
+frontend/ios/Flutter/Flutter.podspec
+frontend/ios/Flutter/Generated.xcconfig
+frontend/ios/Flutter/flutter_export_environment.sh
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/key.properties
+frontend/macos/Pods/
+frontend/macos/Flutter/ephemeral/
+
 # ---------- Editores ----------
 .idea/
 *.iml

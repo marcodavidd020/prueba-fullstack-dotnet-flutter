@@ -1,0 +1,22 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - macos/**
+    - windows/**
+    - linux/**
+
+  errors:
+    todo: info
+
+linter:
+  rules:
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    sort_pub_dependencies: false
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
