@@ -21,20 +21,33 @@ internal sealed class ProductEndpoints : IEndpoint
 
         products.MapGet("/", Search)
             .WithName("SearchProducts")
-            .WithSummary("Lista productos con búsqueda, filtros, orden y paginación");
+            .WithSummary("Lista productos con búsqueda, filtros, orden y paginación")
+            .WithDescription(
+                "Un solo endpoint cubre listar y buscar, porque son la misma operación con el "
+                + "filtro de texto vacío o lleno. Sin `q` devuelve todo el catálogo paginado. "
+                + "`q` busca a la vez en el nombre y en el SKU, ignorando mayúsculas y acentos: "
+                + "`audifonos` encuentra \"Audífonos\" y `AUD` encuentra los SKU que empiezan así.");
 
         products.MapGet("/search", Search)
             .WithName("SearchProductsAlias")
-            .WithSummary("Alias de GET /products");
+            .WithSummary("Alias de GET /products")
+            .WithDescription("Equivalente exacto a `GET /products?q=...`. Delega en el mismo handler.");
 
         products.MapGet("/{id:int}", GetById)
             .WithName("GetProduct")
             .WithSummary("Devuelve un producto por su identificador")
+            .WithDescription(
+                "Incluye la cabecera `ETag`, que hay que reenviar en `If-Match` al actualizar el precio.")
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         products.MapPatch("/{id:int}/price", UpdatePrice)
             .WithName("UpdateProductPrice")
             .WithSummary("Actualiza únicamente el precio de un producto")
+            .WithDescription(
+                "PATCH y no PUT: el alcance del cambio está limitado por la URL y por el cuerpo, "
+                + "que solo tiene precio y moneda. Es imposible tocar el stock o el nombre. "
+                + "Admite `If-Match` con el ETag para control de concurrencia optimista: si la "
+                + "versión está vencida devuelve 412 sin tocar la base.")
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status412PreconditionFailed);

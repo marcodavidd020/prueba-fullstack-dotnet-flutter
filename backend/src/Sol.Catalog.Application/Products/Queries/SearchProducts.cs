@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using FluentValidation;
 using Sol.Catalog.Application.Abstractions.Messaging;
 using Sol.Catalog.Application.Abstractions.Persistence;
@@ -9,14 +10,31 @@ using Sol.Catalog.Domain.Products;
 namespace Sol.Catalog.Application.Products.Queries;
 
 public sealed record SearchProductsQuery(
+    [property: Description("Texto a buscar en el nombre o el SKU, sin distinguir mayúsculas ni acentos. Vacío devuelve todo el catálogo.")]
     string? Q = null,
+
+    [property: Description("Número de página, empezando en 1.")]
     int Page = 1,
+
+    [property: Description("Elementos por página. Entre 1 y 100.")]
     int PageSize = SearchProductsQuery.DefaultPageSize,
+
+    [property: Description("Campo por el que ordenar: Name, Price, Stock o Sku.")]
     ProductSortField SortBy = ProductSortField.Name,
+
+    [property: Description("Sentido del orden: Asc o Desc.")]
     SortDirection SortDir = SortDirection.Asc,
+
+    [property: Description("Precio mínimo, inclusive. En la unidad de la moneda, por ejemplo 199.90.")]
     decimal? MinPrice = null,
+
+    [property: Description("Precio máximo, inclusive.")]
     decimal? MaxPrice = null,
+
+    [property: Description("Filtra por código ISO 4217 de tres letras, por ejemplo BOB o USD.")]
     string? Currency = null,
+
+    [property: Description("Si es true, deja fuera los productos sin stock.")]
     bool InStock = false) : IQuery<PagedResult<ProductResponse>>
 {
     public const int DefaultPageSize = 20;

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Globalization;
 using Sol.Catalog.Domain.Products;
 
@@ -13,7 +14,12 @@ public sealed record ProductResponse(
     DateTimeOffset UpdatedAt,
     int Version);
 
-public sealed record UpdatePriceRequest(string? Price, string? Currency);
+public sealed record UpdatePriceRequest(
+    [property: Description("Nuevo importe, como cadena decimal con punto. Por ejemplo \"249.90\".")]
+    string? Price,
+
+    [property: Description("Código ISO 4217 de tres letras. Por ejemplo BOB o USD.")]
+    string? Currency);
 
 public static class ProductMappings
 {
