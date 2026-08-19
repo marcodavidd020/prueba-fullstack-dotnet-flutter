@@ -314,7 +314,7 @@ El enunciado deja el plus a elección. Estos son los que entraron y por qué:
 |---|---|
 | Paginación con scroll infinito | `hasNext` del servidor, `droppable()` en el Bloc |
 | Ordenamiento por 4 campos, asc/desc | `enum` en vez de texto libre, sin riesgo en el `ORDER BY` |
-| Filtros: rango de precio, moneda, solo con stock | los tres en la API; en la UI, solo el de stock |
+| Filtros: rango de precio, moneda, solo con stock | panel lateral con orden y filtros, y contador de filtros activos |
 | API key por cabecera | `IEndpointFilter` sobre el grupo, opcional por configuración |
 | Logging y errores robustos | Serilog estructurado, `ProblemDetails` RFC 9457, handler global |
 | UI cuidada | Material 3, modo oscuro, skeletons, estados vacíos diferenciados |
@@ -331,10 +331,6 @@ EF Core— pero no hay ni uno escrito. Faltan tests de dominio (`Money.Create`
 rechaza 0, cambiar al mismo precio no incrementa la versión), de casos de uso
 contra un repositorio falso, de integración con `WebApplicationFactory`, y de
 Bloc con `bloc_test`.
-
-**Exponer en la UI los filtros que la API ya tiene.** El rango de precio y la
-moneda están implementados en el backend y no hay control que los use. Es la
-mejora con mejor relación esfuerzo/visibilidad.
 
 **Caché local.** Hoy sin conexión la app no muestra nada. Guardar la última
 página con `shared_preferences` o Hive permitiría abrir el catálogo y ver los

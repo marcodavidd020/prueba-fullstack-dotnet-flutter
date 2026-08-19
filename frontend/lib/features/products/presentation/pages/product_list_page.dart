@@ -11,6 +11,7 @@ import 'package:sol_catalog/features/products/domain/repositories/product_reposi
 import 'package:sol_catalog/features/products/presentation/bloc/product_list_bloc.dart';
 import 'package:sol_catalog/features/products/presentation/widgets/edit_price_sheet.dart';
 import 'package:sol_catalog/features/products/presentation/widgets/product_card.dart';
+import 'package:sol_catalog/features/products/presentation/widgets/product_filters_drawer.dart';
 import 'package:sol_catalog/features/products/presentation/widgets/product_search_field.dart';
 
 class ProductListPage extends StatelessWidget {
@@ -34,6 +35,7 @@ class ProductListView extends StatefulWidget {
 
 class _ProductListViewState extends State<ProductListView> {
   final _scrollController = ScrollController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -76,18 +78,40 @@ class _ProductListViewState extends State<ProductListView> {
     final bloc = context.read<ProductListBloc>();
 
     return Scaffold(
+      key: _scaffoldKey,
+      endDrawer: BlocBuilder<ProductListBloc, ProductListState>(
+        buildWhen: (previous, current) => current is ProductListLoaded,
+        builder: (context, state) {
+          final query = state is ProductListLoaded
+              ? state.query
+              : const ProductQuery();
+
+          return ProductFiltersDrawer(
+            key: ValueKey(query),
+            query: query,
+            onApply: (draft) => bloc.add(
+              FiltersChanged(
+                sortBy: draft.sortBy,
+                sortDir: draft.sortDir,
+                onlyInStock: draft.onlyInStock,
+                minPrice: draft.minPrice,
+                maxPrice: draft.maxPrice,
+                currency: draft.currency,
+              ),
+            ),
+          );
+        },
+      ),
       appBar: AppBar(
         title: const Text('Catálogo'),
         actions: [
           BlocBuilder<ProductListBloc, ProductListState>(
             buildWhen: (previous, current) => current is ProductListLoaded,
-            builder: (context, state) => _SortMenu(
-              query: state is ProductListLoaded
-                  ? state.query
-                  : const ProductQuery(),
-              onSort: (field, dir) => bloc.add(SortChanged(field, dir)),
-              onStock: ({required onlyInStock}) =>
-                  bloc.add(StockFilterToggled(onlyInStock: onlyInStock)),
+            builder: (context, state) => _FiltersButton(
+              activeCount: state is ProductListLoaded
+                  ? state.query.activeFilterCount
+                  : 0,
+              onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
             ),
           ),
         ],
@@ -242,52 +266,26 @@ class _ListFooter extends StatelessWidget {
   }
 }
 
-class _SortMenu extends StatelessWidget {
-  const _SortMenu({
-    required this.query,
-    required this.onSort,
-    required this.onStock,
-  });
+class _FiltersButton extends StatelessWidget {
+  const _FiltersButton({required this.activeCount, required this.onPressed});
 
-  final ProductQuery query;
-  final void Function(ProductSortField, SortDirection) onSort;
-  final void Function({required bool onlyInStock}) onStock;
+  final int activeCount;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<void>(
+    final button = IconButton(
       icon: const Icon(Icons.tune),
       tooltip: 'Ordenar y filtrar',
-      itemBuilder: (context) => [
-        for (final field in ProductSortField.values)
-          for (final dir in SortDirection.values)
-            PopupMenuItem<void>(
-              onTap: () => onSort(field, dir),
-              child: Row(
-                children: [
-                  Icon(
-                    query.sortBy == field && query.sortDir == dir
-                        ? Icons.check
-                        : null,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Text('${field.label} ${dir.label}'),
-                ],
-              ),
-            ),
-        const PopupMenuDivider(),
-        PopupMenuItem<void>(
-          onTap: () => onStock(onlyInStock: !query.onlyInStock),
-          child: Row(
-            children: [
-              Icon(query.onlyInStock ? Icons.check : null, size: 18),
-              const SizedBox(width: 8),
-              const Text('Solo con stock'),
-            ],
-          ),
-        ),
-      ],
+      onPressed: onPressed,
+    );
+
+    if (activeCount == 0) return button;
+
+    return Badge.count(
+      count: activeCount,
+      offset: const Offset(-6, 6),
+      child: button,
     );
   }
 }

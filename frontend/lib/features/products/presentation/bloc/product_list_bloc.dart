@@ -1,4 +1,5 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
@@ -18,8 +19,7 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
     on<ProductsRequested>(_onRequested, transformer: restartable());
     on<SearchChanged>(_onSearchChanged, transformer: _debounceRestartable());
     on<NextPageRequested>(_onNextPage, transformer: droppable());
-    on<SortChanged>(_onSortChanged, transformer: restartable());
-    on<StockFilterToggled>(_onStockFilterToggled, transformer: restartable());
+    on<FiltersChanged>(_onFiltersChanged, transformer: restartable());
     on<ProductUpdated>(_onProductUpdated, transformer: sequential());
   }
 
@@ -51,23 +51,19 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
     emit,
   );
 
-  Future<void> _onSortChanged(
-    SortChanged event,
+  Future<void> _onFiltersChanged(
+    FiltersChanged event,
     Emitter<ProductListState> emit,
   ) => _loadFirstPage(
-    _currentQuery.copyWith(
+    ProductQuery(
+      search: _currentQuery.search,
       sortBy: event.sortBy,
       sortDir: event.sortDir,
-      page: 1,
+      minPrice: event.minPrice,
+      maxPrice: event.maxPrice,
+      currency: event.currency,
+      onlyInStock: event.onlyInStock,
     ),
-    emit,
-  );
-
-  Future<void> _onStockFilterToggled(
-    StockFilterToggled event,
-    Emitter<ProductListState> emit,
-  ) => _loadFirstPage(
-    _currentQuery.copyWith(onlyInStock: event.onlyInStock, page: 1),
     emit,
   );
 

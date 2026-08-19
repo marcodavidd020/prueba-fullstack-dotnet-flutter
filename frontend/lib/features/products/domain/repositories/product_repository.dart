@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:equatable/equatable.dart';
 import 'package:sol_catalog/features/products/domain/entities/product.dart';
 import 'package:sol_catalog/features/products/domain/entities/product_page.dart';
 
@@ -24,12 +25,15 @@ enum SortDirection {
   final String label;
 }
 
-class ProductQuery {
+class ProductQuery extends Equatable {
   const ProductQuery({
     this.search = '',
     this.page = 1,
     this.sortBy = ProductSortField.name,
     this.sortDir = SortDirection.asc,
+    this.minPrice,
+    this.maxPrice,
+    this.currency,
     this.onlyInStock = false,
   });
 
@@ -37,21 +41,44 @@ class ProductQuery {
   final int page;
   final ProductSortField sortBy;
   final SortDirection sortDir;
+  final Decimal? minPrice;
+  final Decimal? maxPrice;
+  final String? currency;
   final bool onlyInStock;
 
-  ProductQuery copyWith({
-    String? search,
-    int? page,
-    ProductSortField? sortBy,
-    SortDirection? sortDir,
-    bool? onlyInStock,
-  }) => ProductQuery(
+  bool get isDefaultSort =>
+      sortBy == ProductSortField.name && sortDir == SortDirection.asc;
+
+  int get activeFilterCount => [
+    minPrice != null,
+    maxPrice != null,
+    currency != null,
+    onlyInStock,
+    !isDefaultSort,
+  ].where((active) => active).length;
+
+  ProductQuery copyWith({String? search, int? page}) => ProductQuery(
     search: search ?? this.search,
     page: page ?? this.page,
-    sortBy: sortBy ?? this.sortBy,
-    sortDir: sortDir ?? this.sortDir,
-    onlyInStock: onlyInStock ?? this.onlyInStock,
+    sortBy: sortBy,
+    sortDir: sortDir,
+    minPrice: minPrice,
+    maxPrice: maxPrice,
+    currency: currency,
+    onlyInStock: onlyInStock,
   );
+
+  @override
+  List<Object?> get props => [
+    search,
+    page,
+    sortBy,
+    sortDir,
+    minPrice,
+    maxPrice,
+    currency,
+    onlyInStock,
+  ];
 }
 
 abstract interface class ProductRepository {

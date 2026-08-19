@@ -18,17 +18,22 @@ final class NextPageRequested extends ProductListEvent {
   const NextPageRequested();
 }
 
-final class SortChanged extends ProductListEvent {
-  const SortChanged(this.sortBy, this.sortDir);
+final class FiltersChanged extends ProductListEvent {
+  const FiltersChanged({
+    required this.sortBy,
+    required this.sortDir,
+    required this.onlyInStock,
+    this.minPrice,
+    this.maxPrice,
+    this.currency,
+  });
 
   final ProductSortField sortBy;
   final SortDirection sortDir;
-}
-
-final class StockFilterToggled extends ProductListEvent {
-  const StockFilterToggled({required this.onlyInStock});
-
   final bool onlyInStock;
+  final Decimal? minPrice;
+  final Decimal? maxPrice;
+  final String? currency;
 }
 
 final class ProductUpdated extends ProductListEvent {
