@@ -32,6 +32,15 @@ class ProductRemoteDataSource {
     return ProductPageModel.fromJson(response.data!);
   }
 
+  Future<ProductModel> getById(int id, {CancelToken? cancelToken}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/products/$id',
+      cancelToken: cancelToken,
+    );
+
+    return ProductModel.fromJson(response.data!);
+  }
+
   Future<ProductModel> updatePrice({
     required int id,
     required String price,

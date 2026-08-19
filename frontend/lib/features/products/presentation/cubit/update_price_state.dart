@@ -5,6 +5,10 @@ sealed class UpdatePriceState extends Equatable {
 
   bool get isSubmitting => this is UpdatePriceSubmitting;
 
+  bool get isReloading => this is UpdatePriceReloading;
+
+  bool get isBusy => isSubmitting || isReloading;
+
   @override
   List<Object?> get props => [];
 }
@@ -15,6 +19,19 @@ final class UpdatePriceIdle extends UpdatePriceState {
 
 final class UpdatePriceSubmitting extends UpdatePriceState {
   const UpdatePriceSubmitting();
+}
+
+final class UpdatePriceReloading extends UpdatePriceState {
+  const UpdatePriceReloading();
+}
+
+final class UpdatePriceReloaded extends UpdatePriceState {
+  const UpdatePriceReloaded(this.product);
+
+  final Product product;
+
+  @override
+  List<Object?> get props => [product];
 }
 
 final class UpdatePriceSuccess extends UpdatePriceState {

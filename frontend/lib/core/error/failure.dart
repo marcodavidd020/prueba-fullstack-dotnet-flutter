@@ -15,8 +15,7 @@ final class NetworkFailure extends Failure {
 
 final class ServerFailure extends Failure {
   const ServerFailure([
-    super.message =
-        'El servidor no pudo procesar la solicitud. Intentá de nuevo en unos minutos.',
+    super.message = 'El servidor no pudo procesar la solicitud. Intentá de nuevo en unos minutos.',
   ]);
 }
 
@@ -45,8 +44,7 @@ final class UnauthorizedFailure extends Failure {
 
 final class ConflictFailure extends Failure {
   const ConflictFailure([
-    super.message =
-        'Otra persona modificó este producto. Recargá para ver el precio actual.',
+    super.message = 'Otra persona modificó este producto. Recargá para ver el precio actual.',
   ]);
 }
 

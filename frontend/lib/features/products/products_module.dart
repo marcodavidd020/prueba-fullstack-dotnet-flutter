@@ -4,6 +4,7 @@ import 'package:sol_catalog/core/config/app_config.dart';
 import 'package:sol_catalog/features/products/data/datasources/product_remote_data_source.dart';
 import 'package:sol_catalog/features/products/data/repositories/product_repository_impl.dart';
 import 'package:sol_catalog/features/products/domain/repositories/product_repository.dart';
+import 'package:sol_catalog/features/products/domain/usecases/get_product_usecase.dart';
 import 'package:sol_catalog/features/products/domain/usecases/search_products_usecase.dart';
 import 'package:sol_catalog/features/products/domain/usecases/update_product_price_usecase.dart';
 import 'package:sol_catalog/features/products/presentation/bloc/product_list_bloc.dart';
@@ -24,11 +25,15 @@ abstract final class ProductsModule {
       ..registerLazySingleton(
         () => UpdateProductPriceUseCase(di<ProductRepository>()),
       )
+      ..registerLazySingleton(() => GetProductUseCase(di<ProductRepository>()))
       ..registerFactory(
         () => ProductListBloc(di<SearchProductsUseCase>(), di<AppConfig>()),
       )
       ..registerFactory(
-        () => UpdatePriceCubit(di<UpdateProductPriceUseCase>()),
+        () => UpdatePriceCubit(
+          di<UpdateProductPriceUseCase>(),
+          di<GetProductUseCase>(),
+        ),
       );
   }
 }

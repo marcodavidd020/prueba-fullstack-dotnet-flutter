@@ -34,14 +34,28 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _priceController;
   late String _currency;
+  late Product _product;
 
   @override
   void initState() {
     super.initState();
+    _product = widget.product;
     _priceController = TextEditingController(
-      text: MoneyFormatter.toWire(widget.product.price),
+      text: MoneyFormatter.toWire(_product.price),
     );
-    _currency = widget.product.currency;
+    _currency = _product.currency;
+  }
+
+  bool get _wasReloaded => _product != widget.product;
+
+  void _close() => Navigator.of(context).pop(_wasReloaded ? _product : null);
+
+  void _adoptReloaded(Product fresh) {
+    setState(() {
+      _product = fresh;
+      _currency = fresh.currency;
+      _priceController.text = MoneyFormatter.toWire(fresh.price);
+    });
   }
 
   @override
@@ -75,7 +89,7 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
 
     unawaited(
       context.read<UpdatePriceCubit>().submit(
-        product: widget.product,
+        product: _product,
         price: amount,
         currency: _currency,
       ),
@@ -104,9 +118,21 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
                 ),
               );
 
+          case UpdatePriceReloaded(:final product):
+            _adoptReloaded(product);
+
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                const SnackBar(
+                  content: Text('Precio actualizado desde el servidor'),
+                ),
+              );
+
           case UpdatePriceFailure() ||
               UpdatePriceIdle() ||
-              UpdatePriceSubmitting():
+              UpdatePriceSubmitting() ||
+              UpdatePriceReloading():
             break;
         }
       },
@@ -137,18 +163,26 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 20,
+                    child: state.isReloading
+                        ? const Align(
+                            alignment: Alignment.bottomCenter,
+                            child: LinearProgressIndicator(minHeight: 3),
+                          )
+                        : null,
+                  ),
 
                   Text('Editar precio', style: texts.titleLarge),
                   const SizedBox(height: 4),
                   Text(
-                    widget.product.name,
+                    _product.name,
                     style: texts.bodyMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
                   Text(
-                    widget.product.sku,
+                    _product.sku,
                     style: texts.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -163,7 +197,7 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
                         child: TextFormField(
                           controller: _priceController,
                           autofocus: true,
-                          enabled: !state.isSubmitting,
+                          enabled: !state.isBusy,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -196,8 +230,9 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
                           ],
                           onChanged: state.isSubmitting
                               ? null
-                              : (value) =>
-                                    setState(() => _currency = value ?? _currency),
+                              : (value) => setState(
+                                  () => _currency = value ?? _currency,
+                                ),
                         ),
                       ),
                     ],
@@ -232,11 +267,41 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Text(
-                              failure.message,
-                              style: texts.bodySmall?.copyWith(
-                                color: scheme.onErrorContainer,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  failure.message,
+                                  style: texts.bodySmall?.copyWith(
+                                    color: scheme.onErrorContainer,
+                                  ),
+                                ),
+                                if (isConflict) ...[
+                                  const SizedBox(height: 8),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: FilledButton.tonalIcon(
+                                      onPressed: state.isBusy
+                                          ? null
+                                          : () => unawaited(
+                                              context
+                                                  .read<UpdatePriceCubit>()
+                                                  .reload(_product.id),
+                                            ),
+                                      icon: state.isReloading
+                                          ? const SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : const Icon(Icons.refresh, size: 18),
+                                      label: const Text('Recargar precio'),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
@@ -245,7 +310,7 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
 
                   Text(
                     'Precio actual: '
-                    '${MoneyFormatter.format(widget.product.price, widget.product.currency)}',
+                    '${MoneyFormatter.format(_product.price, _product.currency)}',
                     style: texts.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -256,9 +321,7 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: state.isSubmitting
-                              ? null
-                              : () => Navigator.of(context).pop(),
+                          onPressed: state.isBusy ? null : _close,
                           child: const Text('Cancelar'),
                         ),
                       ),
@@ -266,7 +329,7 @@ class _EditPriceSheetState extends State<_EditPriceSheet> {
                       Expanded(
                         flex: 2,
                         child: FilledButton(
-                          onPressed: state.isSubmitting ? null : _submit,
+                          onPressed: state.isBusy ? null : _submit,
                           child: state.isSubmitting
                               ? const SizedBox(
                                   width: 20,

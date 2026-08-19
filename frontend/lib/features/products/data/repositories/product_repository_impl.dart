@@ -28,6 +28,20 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
+  Future<Product> getById(int id) async {
+    try {
+      final product = await _remote.getById(id);
+      return product.toEntity();
+    } on DioException catch (e) {
+      throw e.failure;
+    } on FormatException catch (e) {
+      throw UnexpectedFailure(
+        'La respuesta del servidor no tiene el formato esperado: ${e.message}',
+      );
+    }
+  }
+
+  @override
   Future<Product> updatePrice({
     required int id,
     required Decimal price,

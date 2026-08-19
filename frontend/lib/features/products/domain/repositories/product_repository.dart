@@ -84,6 +84,8 @@ class ProductQuery extends Equatable {
 abstract interface class ProductRepository {
   Future<ProductPage> search(ProductQuery query);
 
+  Future<Product> getById(int id);
+
   Future<Product> updatePrice({
     required int id,
     required Decimal price,
