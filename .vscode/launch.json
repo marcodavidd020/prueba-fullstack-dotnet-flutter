@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "App (.env)",
+      "type": "dart",
+      "request": "launch",
+      "program": "frontend/lib/main.dart",
+      "cwd": "frontend",
+      "toolArgs": ["--dart-define-from-file=.env"]
+    },
+    {
+      "name": "App — web / simulador iOS",
+      "type": "dart",
+      "request": "launch",
+      "program": "frontend/lib/main.dart",
+      "cwd": "frontend",
+      "toolArgs": ["--dart-define=API_BASE_URL=http://localhost:5151"]
+    },
+    {
+      "name": "App — emulador Android",
+      "type": "dart",
+      "request": "launch",
+      "program": "frontend/lib/main.dart",
+      "cwd": "frontend",
+      "toolArgs": ["--dart-define=API_BASE_URL=http://10.0.2.2:5151"]
+    }
+  ]
+}
