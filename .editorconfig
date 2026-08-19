@@ -67,3 +67,8 @@ dotnet_naming_style.underscore_camel.capitalization = camel_case
 
 [**/Common/Error.cs]
 dotnet_diagnostic.CA1716.severity = none
+
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+dotnet_diagnostic.IDE0161.severity = none
