@@ -61,9 +61,9 @@ public sealed class Product
             return Result.Failure<Product>(ProductErrors.NameRequired);
         }
 
-        string nombreNormalizado = name.Trim();
+        string normalizedName = name.Trim();
 
-        if (nombreNormalizado.Length > NameMaxLength)
+        if (normalizedName.Length > NameMaxLength)
         {
             return Result.Failure<Product>(ProductErrors.NameTooLong);
         }
@@ -74,7 +74,7 @@ public sealed class Product
         }
 
         return Result.Success(
-            new Product(id, sku, nombreNormalizado, price, stock, now, version: 1));
+            new Product(id, sku, normalizedName, price, stock, now, version: 1));
     }
 
     public Result ChangePrice(Money newPrice, DateTimeOffset now)

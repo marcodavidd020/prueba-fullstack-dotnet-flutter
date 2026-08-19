@@ -20,10 +20,10 @@ public sealed partial record Sku
             return Result.Failure<Sku>(ProductErrors.SkuRequired);
         }
 
-        string normalizado = value.Trim().ToUpperInvariant();
+        string normalizedValue = value.Trim().ToUpperInvariant();
 
-        return Formato().IsMatch(normalizado)
-            ? Result.Success(new Sku(normalizado))
+        return Pattern().IsMatch(normalizedValue)
+            ? Result.Success(new Sku(normalizedValue))
             : Result.Failure<Sku>(ProductErrors.InvalidSku);
     }
 
@@ -33,5 +33,5 @@ public sealed partial record Sku
         @"^[A-Z0-9][A-Z0-9\-]{1,30}[A-Z0-9]$",
         RegexOptions.CultureInvariant,
         matchTimeoutMilliseconds: 200)]
-    private static partial Regex Formato();
+    private static partial Regex Pattern();
 }

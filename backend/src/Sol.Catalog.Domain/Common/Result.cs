@@ -9,13 +9,13 @@ public class Result
         if (isSuccess && error != Error.None)
         {
             throw new ArgumentException(
-                "Un resultado exitoso no puede llevar un error.", nameof(error));
+                "A successful result cannot carry an error.", nameof(error));
         }
 
         if (!isSuccess && error == Error.None)
         {
             throw new ArgumentException(
-                "Un resultado fallido debe llevar un error.", nameof(error));
+                "A failed result must carry an error.", nameof(error));
         }
 
         IsSuccess = isSuccess;
@@ -47,7 +47,7 @@ public sealed class Result<TValue> : Result
     public TValue Value => IsSuccess
         ? _value!
         : throw new InvalidOperationException(
-            $"No se puede leer el valor de un resultado fallido ({Error.Code}).");
+            $"Cannot read the value of a failed result ({Error.Code}).");
 
     public static implicit operator Result<TValue>(TValue value) => Success(value);
 }

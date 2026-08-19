@@ -29,14 +29,14 @@ public sealed record Money
             return Result.Failure<Money>(ProductErrors.InvalidCurrency);
         }
 
-        string normalizada = currency.Trim().ToUpperInvariant();
+        string normalizedCurrency = currency.Trim().ToUpperInvariant();
 
-        if (normalizada.Length != CurrencyLength || !normalizada.All(char.IsAsciiLetterUpper))
+        if (normalizedCurrency.Length != CurrencyLength || !normalizedCurrency.All(char.IsAsciiLetterUpper))
         {
             return Result.Failure<Money>(ProductErrors.InvalidCurrency);
         }
 
-        return Result.Success(new Money(amount, normalizada));
+        return Result.Success(new Money(amount, normalizedCurrency));
     }
 
     public override string ToString() =>
