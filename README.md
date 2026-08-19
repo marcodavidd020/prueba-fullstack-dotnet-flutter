@@ -306,7 +306,64 @@ consume, no por la que la implementa.
 
 ---
 
-## Pendiente
+## Plus implementados
 
-- Tests de dominio, de casos de uso y de integración en el backend
-- Tests de Bloc y de widgets en el frontend
+El enunciado deja el plus a elección. Estos son los que entraron y por qué:
+
+| Plus | Dónde |
+|---|---|
+| Paginación con scroll infinito | `hasNext` del servidor, `droppable()` en el Bloc |
+| Ordenamiento por 4 campos, asc/desc | `enum` en vez de texto libre, sin riesgo en el `ORDER BY` |
+| Filtros: rango de precio, moneda, solo con stock | los tres en la API; en la UI, solo el de stock |
+| API key por cabecera | `IEndpointFilter` sobre el grupo, opcional por configuración |
+| Logging y errores robustos | Serilog estructurado, `ProblemDetails` RFC 9457, handler global |
+| UI cuidada | Material 3, modo oscuro, skeletons, estados vacíos diferenciados |
+
+---
+
+## Posibles mejoras
+
+Ordenadas por lo que más aportaría primero.
+
+**Tests.** Es el hueco más visible. El diseño está preparado —los casos de uso
+se pueden testear sin base de datos porque dependen de `IProductReader`, no de
+EF Core— pero no hay ni uno escrito. Faltan tests de dominio (`Money.Create`
+rechaza 0, cambiar al mismo precio no incrementa la versión), de casos de uso
+contra un repositorio falso, de integración con `WebApplicationFactory`, y de
+Bloc con `bloc_test`.
+
+**Exponer en la UI los filtros que la API ya tiene.** El rango de precio y la
+moneda están implementados en el backend y no hay control que los use. Es la
+mejora con mejor relación esfuerzo/visibilidad.
+
+**Caché local.** Hoy sin conexión la app no muestra nada. Guardar la última
+página con `shared_preferences` o Hive permitiría abrir el catálogo y ver los
+últimos datos con un aviso de "desactualizado".
+
+**Búsqueda de texto completo.** El `LIKE '%texto%'` hace un recorrido completo
+de la tabla: con 38 productos es irrelevante, con un millón no. La respuesta es
+FTS5 en SQLite, no un índice sobre la columna de búsqueda —con el comodín al
+principio ningún índice B-tree se puede usar—.
+
+**Escala por moneda en el converter.** El importe se guarda como entero
+multiplicado por 100, lo que supone monedas de dos decimales. Sirve para BOB,
+USD y EUR; no para el yen (cero decimales) ni el dinar bahreiní (tres). La
+solución general es una tabla de escala por moneda.
+
+**Paginación por cursor.** La actual es por offset: en offsets grandes la base
+descarta todas las filas anteriores, y si alguien inserta un producto entre dos
+pedidos un elemento puede repetirse o saltearse. Keyset tiene costo constante,
+a cambio de no poder saltar a una página arbitraria.
+
+**Autenticación real.** La API key identifica a la aplicación, no a una
+persona, y embebida en un cliente no es un secreto. Con usuarios reales
+correspondería JWT con refresh tokens: el access token en memoria y el refresh
+en almacenamiento seguro.
+
+**Telemetría.** `runZonedGuarded` y `FlutterError.onError` ya capturan todo lo
+que puede fallar en el cliente, pero solo va a `debugPrint`. Ese es el punto
+donde se engancharía Sentry o Crashlytics; del lado del servidor, OpenTelemetry.
+
+**Despliegue.** Dockerfile para la API, workflow de CI que corra build y
+análisis en los dos proyectos, y migraciones como paso explícito del pipeline
+en vez de al arrancar.
