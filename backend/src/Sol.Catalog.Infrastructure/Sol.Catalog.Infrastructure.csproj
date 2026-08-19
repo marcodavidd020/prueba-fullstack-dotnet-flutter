@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Sol.Catalog.Application\Sol.Catalog.Application.csproj" />
+  </ItemGroup>
+</Project>

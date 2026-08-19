@@ -1,0 +1,46 @@
+# ---------- macOS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# ---------- .NET ----------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+artifacts/
+TestResults/
+*.trx
+*.coverage
+*.coverlet.json
+coverage/
+
+# Base de datos generada por el seed (se recrea sola al arrancar)
+*.db
+*.db-shm
+*.db-wal
+
+# Secretos locales
+appsettings.Development.local.json
+appsettings.*.local.json
+*.pfx
+
+# ---------- Editores ----------
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# ---------- Varios ----------
+*.log
+.env
+.env.*
+!.env.example
