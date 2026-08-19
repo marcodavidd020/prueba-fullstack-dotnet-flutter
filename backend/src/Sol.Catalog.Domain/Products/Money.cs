@@ -29,7 +29,7 @@ public sealed record Money
             return Result.Failure<Money>(ProductErrors.InvalidCurrency);
         }
 
-        var normalizada = currency.Trim().ToUpperInvariant();
+        string normalizada = currency.Trim().ToUpperInvariant();
 
         if (normalizada.Length != CurrencyLength || !normalizada.All(char.IsAsciiLetterUpper))
         {

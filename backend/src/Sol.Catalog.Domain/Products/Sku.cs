@@ -20,7 +20,7 @@ public sealed partial record Sku
             return Result.Failure<Sku>(ProductErrors.SkuRequired);
         }
 
-        var normalizado = value.Trim().ToUpperInvariant();
+        string normalizado = value.Trim().ToUpperInvariant();
 
         return Formato().IsMatch(normalizado)
             ? Result.Success(new Sku(normalizado))

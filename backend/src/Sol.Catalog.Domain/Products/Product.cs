@@ -61,7 +61,7 @@ public sealed class Product
             return Result.Failure<Product>(ProductErrors.NameRequired);
         }
 
-        var nombreNormalizado = name.Trim();
+        string nombreNormalizado = name.Trim();
 
         if (nombreNormalizado.Length > NameMaxLength)
         {
