@@ -98,7 +98,8 @@ ninguno, la app usa `http://localhost:5151`, que sirve para web y para el
 simulador de iOS.
 
 **Desde VS Code**, el panel *Run and Debug* trae tres configuraciones ya listas:
-`App (.env)`, `App — web / simulador iOS` y `App — emulador Android`. Usalas en
+`App (.env)` —que necesita el archivo creado— y `App — web / simulador iOS` y
+`App — emulador Android`, que fijan la URL directamente y no lo necesitan. Usalas en
 vez de F5 a secas: la extensión de Flutter no pasa `--dart-define-from-file` por
 su cuenta, así que sin ellas la app arranca apuntando a `localhost` sin avisar
 —falla en silencio, porque todo levanta bien y solo la URL está mal—.
