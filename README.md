@@ -7,6 +7,34 @@ actualización de precio con control de concurrencia optimista.
 
 ---
 
+## La app
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/capturas/01-listado.png" alt="Listado de productos"></td>
+    <td width="50%"><img src="docs/capturas/02-filtros.png" alt="Panel de orden y filtros"></td>
+  </tr>
+  <tr>
+    <td><b>Listado</b> — nombre, SKU, precio con su moneda y estado de stock. Búsqueda por nombre o SKU que ignora acentos, y scroll infinito.</td>
+    <td><b>Orden y filtros</b> — cuatro campos de orden con dirección, rango de precio, moneda y "solo con stock". El ícono lleva un contador de filtros activos.</td>
+  </tr>
+  <tr>
+    <td><img src="docs/capturas/03-editar-precio.png" alt="Editor de precio"></td>
+    <td><img src="docs/capturas/04-conflicto.png" alt="Conflicto de versión"></td>
+  </tr>
+  <tr>
+    <td><b>Editar precio</b> — solo ese campo y la moneda. Validación en el cliente y en el servidor.</td>
+    <td><b>Conflicto de versión</b> — otra persona editó mientras tanto. El servidor responde 412 sin escribir y el formulario ofrece recargar el precio actual.</td>
+  </tr>
+</table>
+
+<img src="docs/capturas/05-modo-oscuro.png" alt="Listado en modo oscuro" width="49%">
+
+El modo oscuro sale del tema del sistema y no requirió tocar ningún widget:
+ninguno usa un color literal, todos salen del `ColorScheme`.
+
+---
+
 ## Cómo correr
 
 ### Requisitos
