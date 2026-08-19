@@ -69,6 +69,15 @@ El `.env` está en el `.gitignore`; `.env.example` es la plantilla. Si no existe
 ninguno, la app usa `http://localhost:5151`, que sirve para web y para el
 simulador de iOS.
 
+**Desde VS Code**, el panel *Run and Debug* trae tres configuraciones ya listas:
+`App (.env)`, `App — web / simulador iOS` y `App — emulador Android`. Usalas en
+vez de F5 a secas: la extensión de Flutter no pasa `--dart-define-from-file` por
+su cuenta, así que sin ellas la app arranca apuntando a `localhost` sin avisar
+—falla en silencio, porque todo levanta bien y solo la URL está mal—.
+
+Y como los valores son constantes de compilación, **cambiar el `.env` no se
+refleja con hot reload**: hay que parar y relanzar.
+
 **No se usa `flutter_dotenv`.** El archivo lo consume `--dart-define-from-file`,
 que acepta formato `.env` además de JSON, y el compilador incrusta los valores
 como constantes: no hay asset extra que empaquetar y un valor faltante se
@@ -135,6 +144,27 @@ corresponde:
 
 El campo `code` es el identificador estable. Un cliente debería reaccionar a él
 y no al texto de `detail`, que puede reescribirse o traducirse sin aviso.
+
+`GET /products/search` es un alias literal del requisito del enunciado
+—"devuelve productos filtrados por name o sku"— y delega en **el mismo
+handler**, así que no hay lógica duplicada. La ruta canónica es
+`GET /products?q=`: un filtro es un parámetro sobre la colección, no un recurso
+aparte. La app usa la canónica.
+
+### Ver el control de concurrencia funcionando
+
+Es la parte menos visible y la más interesante. Con la app abierta en dos
+pestañas del navegador:
+
+1. En ambas, abrí el editor de precio del **mismo** producto.
+2. Guardá en la primera. Se actualiza normalmente.
+3. Guardá en la segunda: su `If-Match` ya está vencido → **412**, y el
+   formulario muestra "Otra persona modificó este producto" con un botón
+   **Recargar precio**.
+4. Tocá *Recargar precio*: trae la versión actual y ahora sí guarda.
+
+En ningún momento se pisa el cambio de la otra pestaña en silencio, que es el
+objetivo de todo el mecanismo.
 
 ---
 
